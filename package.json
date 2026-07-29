@@ -11,7 +11,8 @@
     "dev": "pnpm -r --parallel dev",
     "dev:backend": "pnpm --filter @open-air/backend dev",
     "dev:web": "pnpm --filter @open-air/web dev",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prepare": "husky"
   },
   "author": "Andreas Sünder",
   "license": "MIT",
@@ -22,7 +23,6 @@
       "version": "^11.5.2"
     }
   },
-  "dependencies": {},
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260728.1",
     "@eslint/js": "^10.0.1",
@@ -30,6 +30,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.8.0",
+    "husky": "^9.1.7",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.65.0"
   }
