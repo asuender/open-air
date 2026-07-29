@@ -14,6 +14,9 @@
     "lint": "eslint .",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
   "author": "Andreas Sünder",
   "license": "MIT",
   "devEngines": {
@@ -27,10 +30,13 @@
     "@cloudflare/workers-types": "5.20260728.1",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.8.0",
     "husky": "^9.1.7",
+    "lint-staged": "^17.2.0",
+    "prettier": "3.9.6",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.65.0"
   }
