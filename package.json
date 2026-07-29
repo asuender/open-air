@@ -1,0 +1,38 @@
+{
+  "name": "open-air",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, tRPC, Vite + React, Drizzle and Express.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:backend": "pnpm --filter @open-air/backend dev",
+    "dev:web": "pnpm --filter @open-air/web dev",
+    "lint": "eslint ."
+  },
+  "author": "Andreas Sünder",
+  "license": "MIT",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "onFail": "download",
+      "version": "^11.5.2"
+    }
+  },
+  "dependencies": {
+    "sst": "4.17.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260728.1",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.8.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.65.0"
+  }
+}
