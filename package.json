@@ -22,9 +22,7 @@
       "version": "^11.5.2"
     }
   },
-  "dependencies": {
-    "sst": "4.17.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260728.1",
     "@eslint/js": "^10.0.1",
