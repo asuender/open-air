@@ -11,6 +11,7 @@
     "dev": "pnpm -r --parallel dev",
     "dev:backend": "pnpm --filter @open-air/backend dev",
     "dev:web": "pnpm --filter @open-air/web dev",
+    "migrate": "pnpm --filter @open-air/backend migrate",
     "lint": "eslint .",
     "prepare": "husky"
   },
