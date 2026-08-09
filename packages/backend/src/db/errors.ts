@@ -1,0 +1,64 @@
+import { TRPCError } from "@trpc/server";
+
+type LibsqlCause = {
+  extendedCode?: string;
+  rawCode?: number;
+  message?: string;
+};
+
+export function getLibsqlCause(err: unknown): LibsqlCause | undefined {
+  let current: unknown = err;
+  for (let i = 0; i < 3 && current; i++) {
+    if (
+      typeof current === "object" &&
+      current !== null &&
+      "extendedCode" in current
+    ) {
+      return current as LibsqlCause;
+    }
+    current = (current as { cause?: unknown }).cause;
+  }
+}
+
+export function isUniqueViolation(err: unknown): boolean {
+  const cause = getLibsqlCause(err);
+  return (
+    cause?.extendedCode === "SQLITE_CONSTRAINT_PRIMARYKEY" ||
+    cause?.extendedCode === "SQLITE_CONSTRAINT_UNIQUE" ||
+    cause?.rawCode === 1555 ||
+    cause?.rawCode === 2067 ||
+    /UNIQUE constraint failed/i.test(cause?.message ?? "")
+  );
+}
+
+export function isForeignKeyViolation(err: unknown): boolean {
+  const cause = getLibsqlCause(err);
+  return (
+    cause?.extendedCode === "SQLITE_CONSTRAINT_FOREIGNKEY" ||
+    cause?.rawCode === 787 ||
+    /FOREIGN KEY constraint failed/i.test(cause?.message ?? "")
+  );
+}
+
+export function throwConflictIfUniqueViolation(err: unknown): never {
+  if (isUniqueViolation(err)) {
+    throw new TRPCError({ code: "CONFLICT" });
+  }
+  throw err;
+}
+
+/** FK failure on insert/update usually means the referenced parent row is missing. */
+export function throwNotFoundIfForeignKeyViolation(err: unknown): never {
+  if (isForeignKeyViolation(err)) {
+    throw new TRPCError({ code: "NOT_FOUND" });
+  }
+  throw err;
+}
+
+/** FK failure on delete usually means dependent child rows still exist. */
+export function throwConflictIfForeignKeyViolation(err: unknown): never {
+  if (isForeignKeyViolation(err)) {
+    throw new TRPCError({ code: "CONFLICT" });
+  }
+  throw err;
+}

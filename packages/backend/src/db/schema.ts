@@ -16,14 +16,27 @@ export const requirements = sqliteTable(
   "requirements",
   {
     id: text().primaryKey(),
-    type: text(),
+    level: text(),
+    type: text().notNull(),
     text: text().notNull(),
     document: text("document").references(() => documents.id),
   },
   (table) => [
-    check("check_type", sql`${table.type} in ('', 'must', 'should')`),
+    check("check_level", sql`${table.level} in ('', 'must', 'should', 'info')`),
+    check(
+      "check_type",
+      sql`${table.type} in ('', 'technical', 'non-technical')`,
+    ),
   ],
 );
+
+// Assets store relevant images such as explanatory diagrams etc.
+// as base64 strings (I know, not optimal).
+export const assets = sqliteTable("assets", {
+  id: text().primaryKey(),
+  base64: text(),
+  requirement: text("requirement").references(() => requirements.id),
+});
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -33,3 +46,6 @@ export type NewDocument = typeof documents.$inferInsert;
 
 export type Requirement = typeof requirements.$inferSelect;
 export type NewRequirement = typeof requirements.$inferInsert;
+
+export type Asset = typeof assets.$inferSelect;
+export type NewAsset = typeof assets.$inferInsert;
