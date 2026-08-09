@@ -10,12 +10,12 @@ Open source AI-assisted requirements management. Learning experiment for buildin
 
 ```sh
 pnpm i
-pnpm migrate # runs `drizzle-kit push`
+pnpm migrate    # runs `drizzle-kit push` on the backend
 pnpm dev
 
 # or stark stack individually:
-# pnpm dev:backend
-# pnpm dev:web
+pnpm dev:backend
+pnpm dev:web
 ```
 
 ## Components
