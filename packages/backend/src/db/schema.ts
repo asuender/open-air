@@ -1,25 +1,25 @@
 import { sql } from "drizzle-orm";
-import { check, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { check, pgTable, text } from "drizzle-orm/pg-core";
 
-export const projects = sqliteTable("projects", {
+export const projects = pgTable("projects", {
   id: text().primaryKey(),
   name: text().notNull(),
 });
 
-export const documents = sqliteTable("documents", {
+export const documents = pgTable("documents", {
   id: text().primaryKey(),
   name: text().notNull(),
-  project: text("project").references(() => projects.id),
+  project: text().references(() => projects.id),
 });
 
-export const requirements = sqliteTable(
+export const requirements = pgTable(
   "requirements",
   {
     id: text().primaryKey(),
     level: text(),
     type: text().notNull(),
     text: text().notNull(),
-    document: text("document").references(() => documents.id),
+    document: text().references(() => documents.id),
   },
   (table) => [
     check("check_level", sql`${table.level} in ('', 'must', 'should', 'info')`),
@@ -32,10 +32,10 @@ export const requirements = sqliteTable(
 
 // Assets store relevant images such as explanatory diagrams etc.
 // as base64 strings (I know, not optimal).
-export const assets = sqliteTable("assets", {
+export const assets = pgTable("assets", {
   id: text().primaryKey(),
   base64: text(),
-  requirement: text("requirement").references(() => requirements.id),
+  requirement: text().references(() => requirements.id),
 });
 
 export type Project = typeof projects.$inferSelect;

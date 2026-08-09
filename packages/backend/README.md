@@ -1,6 +1,6 @@
 # @open-air/backend
 
-Backend of the `open-air` project, using Express.js, tRPC and Drizzle.
+Backend of the `open-air` project, using Express.js, tRPC and Drizzle (on a PGlite database).
 
 ## Overview
 
@@ -8,7 +8,6 @@ The database schema is defined and exported from [`src/db/schema.ts`](./src/db/s
 
 ```sh
 pnpm migrate        # runs `drizzle-kit push`
-pnpm migrate:test   # same, but on the test database
 pnpm test           # runs `vitest` in watch mode
 pnpm seed           # seeds the local database
 ```

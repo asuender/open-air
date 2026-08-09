@@ -1,6 +1,5 @@
 packages:
-  - 'packages/*'
+  - "packages/*"
+
 allowBuilds:
   esbuild: false
-minimumReleaseAgeExclude:
-  - '@cloudflare/workers-types@5.20260728.1'

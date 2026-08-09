@@ -1,5 +1,5 @@
-import { drizzle } from "drizzle-orm/libsql";
-import { beforeEach, describe, expect, it } from "vitest";
+import { drizzle } from "drizzle-orm/pglite";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   loadSampleAssets,
   sampleDocuments,
@@ -9,11 +9,20 @@ import {
 import { seed } from "../src/db/seed.js";
 import { appRouter } from "../src/router.js";
 import { createCallerFactory } from "../src/trpc.js";
+import { PGlite } from "@electric-sql/pglite";
+import * as schema from "../src/db/schema.ts";
+import { pushSchema } from "drizzle-kit/api-postgres";
 
-const db = drizzle("file:local.test.db");
+const client = new PGlite();
+const db = drizzle({ client });
 const createCaller = createCallerFactory(appRouter);
 const caller = createCaller({ db });
 const sampleAssets = loadSampleAssets();
+
+beforeAll(async () => {
+  const { apply } = await pushSchema(schema, db);
+  await apply();
+});
 
 beforeEach(async () => {
   await seed(db);

@@ -1,43 +1,25 @@
 import { TRPCError } from "@trpc/server";
 
-type LibsqlCause = {
-  extendedCode?: string;
-  rawCode?: number;
-  message?: string;
+type PostgresCause = {
+  code?: string;
 };
 
-export function getLibsqlCause(err: unknown): LibsqlCause | undefined {
+export function getPostgresCause(err: unknown): PostgresCause | undefined {
   let current: unknown = err;
   for (let i = 0; i < 3 && current; i++) {
-    if (
-      typeof current === "object" &&
-      current !== null &&
-      "extendedCode" in current
-    ) {
-      return current as LibsqlCause;
+    if (typeof current === "object" && current !== null && "code" in current) {
+      return current as PostgresCause;
     }
     current = (current as { cause?: unknown }).cause;
   }
 }
 
 export function isUniqueViolation(err: unknown): boolean {
-  const cause = getLibsqlCause(err);
-  return (
-    cause?.extendedCode === "SQLITE_CONSTRAINT_PRIMARYKEY" ||
-    cause?.extendedCode === "SQLITE_CONSTRAINT_UNIQUE" ||
-    cause?.rawCode === 1555 ||
-    cause?.rawCode === 2067 ||
-    /UNIQUE constraint failed/i.test(cause?.message ?? "")
-  );
+  return getPostgresCause(err)?.code === "23505";
 }
 
 export function isForeignKeyViolation(err: unknown): boolean {
-  const cause = getLibsqlCause(err);
-  return (
-    cause?.extendedCode === "SQLITE_CONSTRAINT_FOREIGNKEY" ||
-    cause?.rawCode === 787 ||
-    /FOREIGN KEY constraint failed/i.test(cause?.message ?? "")
-  );
+  return getPostgresCause(err)?.code === "23503";
 }
 
 export function throwConflictIfUniqueViolation(err: unknown): never {

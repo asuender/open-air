@@ -249,9 +249,9 @@ importers:
 
   packages/backend:
     dependencies:
-      '@libsql/client':
-        specifier: ^0.17.4
-        version: 0.17.4
+      '@electric-sql/pglite':
+        specifier: ^0.5.4
+        version: 0.5.4
       '@trpc/server':
         specifier: ^11.18.0
         version: 11.18.0(typescript@6.0.3)
@@ -263,7 +263,7 @@ importers:
         version: 17.4.2
       drizzle-orm:
         specifier: 1.0.0-rc.4
-        version: 1.0.0-rc.4(@cloudflare/workers-types@5.20260728.1)(@libsql/client@0.17.4)(zod@4.4.3)
+        version: 1.0.0-rc.4(@cloudflare/workers-types@5.20260728.1)(@electric-sql/pglite@0.5.4)(@libsql/client@0.17.4)(zod@4.4.3)
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -437,6 +437,9 @@ packages:
 
   '@drizzle-team/brocli@0.12.0':
     resolution: {integrity: sha512-mlUE+rZ8CatQekLhnaiN91Iemdd+e2gFKooGlnRB3oPTL3VghLfX24dx7HrzMNeC1JrIB/0kpsfyty3f5HNfxQ==}
+
+  '@electric-sql/pglite@0.5.4':
+    resolution: {integrity: sha512-yYZUyyXrHU7tPlCjwZQJ6hIG9DscdCCn7Uk0mYKwC1FeHX286AbcmFveMiRBEak8e9iPupjsoVImN3yJZVed2g==}
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -3249,6 +3252,8 @@ snapshots:
 
   '@drizzle-team/brocli@0.12.0': {}
 
+  '@electric-sql/pglite@0.5.4': {}
+
   '@emnapi/core@1.11.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -3521,10 +3526,12 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+    optional: true
 
   '@libsql/core@0.17.4':
     dependencies:
       js-base64: 3.9.2
+    optional: true
 
   '@libsql/darwin-arm64@0.5.29':
     optional: true
@@ -3539,6 +3546,7 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+    optional: true
 
   '@libsql/isomorphic-ws@0.1.5':
     dependencies:
@@ -3547,6 +3555,7 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+    optional: true
 
   '@libsql/linux-arm-gnueabihf@0.5.29':
     optional: true
@@ -3576,7 +3585,8 @@ snapshots:
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@neon-rs/load@0.0.4': {}
+  '@neon-rs/load@0.0.4':
+    optional: true
 
   '@oxc-project/types@0.139.0': {}
 
@@ -4500,6 +4510,7 @@ snapshots:
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 24.13.3
+    optional: true
 
   '@typescript-eslint/eslint-plugin@8.65.0(@typescript-eslint/parser@8.65.0(eslint@10.8.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.8.0(jiti@2.7.0))(typescript@6.0.3)':
     dependencies:
@@ -4757,7 +4768,8 @@ snapshots:
 
   depd@2.0.0: {}
 
-  detect-libc@2.0.2: {}
+  detect-libc@2.0.2:
+    optional: true
 
   detect-libc@2.1.2: {}
 
@@ -4773,9 +4785,10 @@ snapshots:
       get-tsconfig: 4.14.0
       jiti: 2.7.0
 
-  drizzle-orm@1.0.0-rc.4(@cloudflare/workers-types@5.20260728.1)(@libsql/client@0.17.4)(zod@4.4.3):
+  drizzle-orm@1.0.0-rc.4(@cloudflare/workers-types@5.20260728.1)(@electric-sql/pglite@0.5.4)(@libsql/client@0.17.4)(zod@4.4.3):
     optionalDependencies:
       '@cloudflare/workers-types': 5.20260728.1
+      '@electric-sql/pglite': 0.5.4
       '@libsql/client': 0.17.4
       zod: 4.4.3
 
@@ -5119,7 +5132,8 @@ snapshots:
 
   jiti@2.7.0: {}
 
-  js-base64@3.9.2: {}
+  js-base64@3.9.2:
+    optional: true
 
   js-tokens@4.0.0: {}
 
@@ -5158,6 +5172,7 @@ snapshots:
       '@libsql/linux-x64-gnu': 0.5.29
       '@libsql/linux-x64-musl': 0.5.29
       '@libsql/win32-x64-msvc': 0.5.29
+    optional: true
 
   lightningcss-android-arm64@1.33.0:
     optional: true
@@ -5309,7 +5324,8 @@ snapshots:
 
   prettier@3.9.6: {}
 
-  promise-limit@2.7.0: {}
+  promise-limit@2.7.0:
+    optional: true
 
   proxy-addr@2.0.7:
     dependencies:
@@ -5684,7 +5700,8 @@ snapshots:
 
   wrappy@1.0.2: {}
 
-  ws@8.21.1: {}
+  ws@8.21.1:
+    optional: true
 
   yallist@3.1.1: {}
 

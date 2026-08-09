@@ -10,12 +10,11 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "migrate": "drizzle-kit push",
-    "migrate:test": "drizzle-kit push --config=drizzle-test.config.ts",
     "seed": "tsx src/db/seed.ts",
     "test": "vitest --clearScreen"
   },
   "dependencies": {
-    "@libsql/client": "^0.17.4",
+    "@electric-sql/pglite": "^0.5.4",
     "@trpc/server": "^11.18.0",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",

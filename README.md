@@ -4,7 +4,7 @@
 
 > This is a learning project for exploring the tech stack used here, just so you know.
 
-Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, tRPC, Vite + React, Drizzle, Express and optionally, SST.
+Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, tRPC, Vite + React, Drizzle (on a PGlite database), Express and optionally, SST.
 
 ## Usage
 
