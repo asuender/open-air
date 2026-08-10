@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ESNext", "DOM"],
+    "rewriteRelativeImportExtensions": true,
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["src/**/*", "test/adapter.test.ts"]
+}
