@@ -24,6 +24,7 @@ This represents a monorepo bundling multiple packages:
 
 - `@open-air/web`: Frontend, written in React + Vite and Radix UI. See [`packages/web/README.md`](./packages/web/README.md) for more details.
 - `@open-air/backend`: Backend, written in Express.js and holding the tRPC router. See [`packages/backend/README.md`](./packages/backend/README.md) for more details.
+- `@open-air/storage-adapter`: Custom in-memory storage adapter for [`storagesdk`](https://storagesdk.dev/), used for mocking the object storage in tests. See [`packages/storage-adapter/README.md`](./packages/storage-adapter/README.md) for more details.
 
 ## License
 
