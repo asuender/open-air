@@ -1,4 +1,4 @@
-export type { AppRouter } from "./router.ts";
+export type { AppRouter } from "./trpc/router.ts";
 export type {
   Project,
   NewProject,

@@ -9,7 +9,7 @@ export const projects = pgTable("projects", {
 export const documents = pgTable("documents", {
   id: text().primaryKey(),
   name: text().notNull(),
-  project: text().references(() => projects.id),
+  project: text().references(() => projects.id, { onDelete: "cascade" }),
 });
 
 export const requirements = pgTable(
@@ -19,7 +19,7 @@ export const requirements = pgTable(
     level: text(),
     type: text().notNull(),
     text: text().notNull(),
-    document: text().references(() => documents.id),
+    document: text().references(() => documents.id, { onDelete: "cascade" }),
   },
   (table) => [
     check("check_level", sql`${table.level} in ('', 'must', 'should', 'info')`),

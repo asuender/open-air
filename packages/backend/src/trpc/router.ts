@@ -1,15 +1,21 @@
 import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { z } from "zod";
-import { documents, projects, requirements } from "../db/schema.ts";
-import { publicProcedure, router } from "./index.ts";
+import {
+  documents,
+  projects,
+  requirements,
+  type Requirement,
+} from "../db/schema.ts";
+import { publicProcedure, router, type Context } from "./index.ts";
 import {
   rethrowStorageErrorForTRPC,
   throwConflictIfForeignKeyViolation,
   throwNotFoundIfForeignKeyViolation,
 } from "../db/errors.ts";
 import { type Storage } from "@storagesdk/core";
+import { hasItems } from "../utils.ts";
 
 const idSchema = z.string().min(1);
 const assetIdSchema = z.string().startsWith("requirements/").min(1);
@@ -71,6 +77,32 @@ async function listAllByPrefix(storage: Storage, prefix: string) {
   return items;
 }
 
+async function deleteReqsAndAssets(docIds: string | string[], ctx: Context) {
+  const { db, storage } = ctx;
+
+  let reqs: Requirement[];
+
+  if (typeof docIds === "string") {
+    reqs = await db
+      .select()
+      .from(requirements)
+      .where(eq(requirements.document, docIds));
+  } else {
+    reqs = await db
+      .select()
+      .from(requirements)
+      .where(inArray(requirements.document, docIds));
+  }
+
+  for (const req of reqs) {
+    const assets = await listAllByPrefix(storage, `requirements/${req.id}/`);
+
+    for (const asset of assets) {
+      await storage.delete(asset.path);
+    }
+  }
+}
+
 const projectsRouter = router({
   list: publicProcedure.query(async (opts) => {
     const db = opts.ctx.db;
@@ -117,13 +149,21 @@ const projectsRouter = router({
     const { input, ctx } = opts;
     const { db } = ctx;
 
-    try {
-      return firstOrThrowNotFound(
-        await db.delete(projects).where(eq(projects.id, input)).returning(),
+    const docs = await db
+      .select({ id: documents.id })
+      .from(documents)
+      .where(eq(documents.project, input));
+
+    if (hasItems(docs)) {
+      await deleteReqsAndAssets(
+        docs.map((doc) => doc.id),
+        ctx,
       );
-    } catch (err) {
-      throwConflictIfForeignKeyViolation(err);
     }
+
+    return firstOrThrowNotFound(
+      await db.delete(projects).where(eq(projects.id, input)).returning(),
+    );
   }),
 });
 
@@ -193,13 +233,11 @@ const documentsRouter = router({
     const { input, ctx } = opts;
     const { db } = ctx;
 
-    try {
-      return firstOrThrowNotFound(
-        await db.delete(documents).where(eq(documents.id, input)).returning(),
-      );
-    } catch (err) {
-      throwConflictIfForeignKeyViolation(err);
-    }
+    await deleteReqsAndAssets(input, ctx);
+
+    return firstOrThrowNotFound(
+      await db.delete(documents).where(eq(documents.id, input)).returning(),
+    );
   }),
 });
 
