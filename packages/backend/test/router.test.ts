@@ -6,8 +6,8 @@ import {
   sampleRequirements,
 } from "../src/db/sample-data.js";
 import { seed } from "../src/db/seed.js";
-import { appRouter } from "../src/router.js";
-import { createCallerFactory } from "../src/trpc.js";
+import { appRouter } from "../src/trpc/router.ts";
+import { createCallerFactory } from "../src/trpc/index.ts";
 import { PGlite } from "@electric-sql/pglite";
 import * as schema from "../src/db/schema.ts";
 import { pushSchema } from "drizzle-kit/api-postgres";

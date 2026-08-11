@@ -1,7 +1,7 @@
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import cors from "cors";
 import express from "express";
-import { appRouter } from "./router.ts";
+import { appRouter } from "./trpc/router.ts";
 import { db } from "./db/index.ts";
 import { storage } from "./storage/index.ts";
 

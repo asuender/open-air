@@ -2,13 +2,13 @@ import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { documents, projects, requirements } from "./db/schema.ts";
-import { publicProcedure, router } from "./trpc.ts";
+import { documents, projects, requirements } from "../db/schema.ts";
+import { publicProcedure, router } from "./index.ts";
 import {
   rethrowStorageErrorForTRPC,
   throwConflictIfForeignKeyViolation,
   throwNotFoundIfForeignKeyViolation,
-} from "./db/errors.ts";
+} from "../db/errors.ts";
 import { type Storage } from "@storagesdk/core";
 
 const idSchema = z.string().min(1);
