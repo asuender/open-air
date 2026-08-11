@@ -1,7 +1,6 @@
 import { drizzle } from "drizzle-orm/pglite";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
-  loadSampleAssets,
   sampleDocuments,
   sampleProjects,
   sampleRequirements,
@@ -12,19 +11,25 @@ import { createCallerFactory } from "../src/trpc.js";
 import { PGlite } from "@electric-sql/pglite";
 import * as schema from "../src/db/schema.ts";
 import { pushSchema } from "drizzle-kit/api-postgres";
+import { Storage } from "@storagesdk/core";
+import { inMemoryAdapter } from "@open-air/storage-adapter";
 
-const client = new PGlite();
+const client = new PGlite(); // ommitted url creates in-memory db
 const db = drizzle({ client });
+
 const createCaller = createCallerFactory(appRouter);
-const caller = createCaller({ db });
-const sampleAssets = loadSampleAssets();
+let storage: Storage;
+let caller: ReturnType<typeof createCaller>;
 
 beforeAll(async () => {
+  // see https://github.com/drizzle-team/drizzle-orm/discussions/4373
   const { apply } = await pushSchema(schema, db);
   await apply();
 });
 
 beforeEach(async () => {
+  storage = new Storage({ adapter: inMemoryAdapter({}) });
+  caller = createCaller({ db, storage });
   await seed(db);
 });
 
@@ -379,12 +384,25 @@ describe("requirements", () => {
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 
-  it("deletes a requirement", async () => {
+  it("deletes a requirement and its associated assets", async () => {
+    const associatedPath =
+      "requirements/req_003/00000000-0000-4000-8000-000000000001";
+    const unrelatedPath =
+      "requirements/req_004/00000000-0000-4000-8000-000000000002";
+    await storage.upload(associatedPath, "associated asset");
+    await storage.upload(unrelatedPath, "unrelated asset");
+
     await expect(caller.requirements.delete("req_003")).resolves.toEqual(
       sampleRequirements[2],
     );
     await expect(caller.requirements.getById("req_003")).rejects.toMatchObject({
       code: "NOT_FOUND",
+    });
+    await expect(storage.head(associatedPath)).rejects.toMatchObject({
+      code: "NotFound",
+    });
+    await expect(storage.head(unrelatedPath)).resolves.toMatchObject({
+      path: unrelatedPath,
     });
   });
 
@@ -396,9 +414,18 @@ describe("requirements", () => {
 });
 
 describe("assets", () => {
+  const assetPath = "requirements/req_001/00000000-0000-4000-8000-000000000001";
+  const unknownAssetPath =
+    "requirements/req_001/00000000-0000-4000-8000-000000000099";
+
   it("lists assets belonging to a requirement", async () => {
+    const otherPath =
+      "requirements/req_002/00000000-0000-4000-8000-000000000002";
+    await storage.upload(assetPath, "asset contents");
+    await storage.upload(otherPath, "other asset contents");
+
     await expect(caller.assets.listByRequirement("req_001")).resolves.toEqual([
-      sampleAssets[0],
+      expect.objectContaining({ path: assetPath }),
     ]);
   });
 
@@ -408,70 +435,81 @@ describe("assets", () => {
     ).resolves.toEqual([]);
   });
 
-  it("returns an asset by ID", async () => {
-    await expect(caller.assets.getById("asset_001")).resolves.toEqual(
-      sampleAssets[0],
-    );
-  });
-
-  it("rejects an unknown asset ID", async () => {
-    await expect(caller.assets.getById("unknown_asset")).rejects.toMatchObject({
-      code: "NOT_FOUND",
-    });
-  });
-
-  it("creates an asset under a requirement", async () => {
-    const asset = {
-      id: "asset_004",
-      base64: "PHN2Zz48L3N2Zz4=",
-      requirement: "req_003",
+  it("uploads an asset under a requirement-prefixed UUID", async () => {
+    const body = new TextEncoder().encode("<svg></svg>");
+    const metadata = {
+      contentType: "image/svg+xml",
+      metadata: { filename: "diagram.svg" },
     };
 
-    await expect(caller.assets.create(asset)).resolves.toEqual(asset);
-    await expect(caller.assets.getById(asset.id)).resolves.toEqual(asset);
+    const asset = await caller.assets.upload({
+      body,
+      metadata,
+      requirement: "req_003",
+    });
+
+    expect(asset).toMatchObject({
+      path: expect.stringMatching(
+        /^requirements\/req_003\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      ),
+      ...metadata,
+    });
+    await expect(
+      storage.download(asset.path, { as: "bytes" }),
+    ).resolves.toEqual(body);
   });
 
-  it("rejects an asset with empty base64 data", async () => {
+  it("rejects an empty upload body", async () => {
     await expect(
-      caller.assets.create({
-        id: "asset_004",
-        base64: "",
+      caller.assets.upload({
+        body: new Uint8Array(),
         requirement: "req_003",
       }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
-  it("rejects an asset with an unknown requirement", async () => {
+  it("does not store an object for an unknown requirement", async () => {
     await expect(
-      caller.assets.create({
-        id: "asset_004",
-        base64: "PHN2Zz48L3N2Zz4=",
+      caller.assets.upload({
+        body: new TextEncoder().encode("<svg></svg>"),
         requirement: "unknown_requirement",
       }),
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(storage.list()).resolves.toMatchObject({ items: [] });
   });
 
-  it("rejects a duplicate asset ID", async () => {
-    await expect(
-      caller.assets.create({
-        id: "asset_001",
-        base64: "PHN2Zz48L3N2Zz4=",
-        requirement: "req_001",
-      }),
-    ).rejects.toMatchObject({ code: "CONFLICT" });
+  it("returns the stored object by asset path", async () => {
+    const body = new TextEncoder().encode("asset contents");
+    await storage.upload(assetPath, body, { contentType: "image/svg+xml" });
+
+    await expect(caller.assets.getById(assetPath)).resolves.toMatchObject({
+      path: assetPath,
+      body,
+      contentType: "image/svg+xml",
+    });
   });
 
-  it("deletes an asset", async () => {
-    await expect(caller.assets.delete("asset_001")).resolves.toEqual(
-      sampleAssets[0],
+  it("rejects an unknown asset path", async () => {
+    await expect(caller.assets.getById(unknownAssetPath)).rejects.toMatchObject(
+      {
+        code: "NOT_FOUND",
+      },
     );
-    await expect(caller.assets.getById("asset_001")).rejects.toMatchObject({
-      code: "NOT_FOUND",
+  });
+
+  it("deletes a stored asset", async () => {
+    await storage.upload(assetPath, "asset contents");
+
+    await expect(caller.assets.delete(assetPath)).resolves.toMatchObject({
+      path: assetPath,
+    });
+    await expect(storage.head(assetPath)).rejects.toMatchObject({
+      code: "NotFound",
     });
   });
 
   it("rejects deleting an unknown asset", async () => {
-    await expect(caller.assets.delete("unknown_asset")).rejects.toMatchObject({
+    await expect(caller.assets.delete(unknownAssetPath)).rejects.toMatchObject({
       code: "NOT_FOUND",
     });
   });

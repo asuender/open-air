@@ -14,7 +14,10 @@
     "test": "vitest --clearScreen"
   },
   "dependencies": {
+    "@open-air/storage-adapter": "workspace:*",
     "@electric-sql/pglite": "^0.5.4",
+    "@storagesdk/adapters": "^0.11.0",
+    "@storagesdk/core": "^0.5.0",
     "@trpc/server": "^11.18.0",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",

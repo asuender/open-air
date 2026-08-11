@@ -30,14 +30,6 @@ export const requirements = pgTable(
   ],
 );
 
-// Assets store relevant images such as explanatory diagrams etc.
-// as base64 strings (I know, not optimal).
-export const assets = pgTable("assets", {
-  id: text().primaryKey(),
-  base64: text(),
-  requirement: text().references(() => requirements.id),
-});
-
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
 
@@ -46,6 +38,3 @@ export type NewDocument = typeof documents.$inferInsert;
 
 export type Requirement = typeof requirements.$inferSelect;
 export type NewRequirement = typeof requirements.$inferInsert;
-
-export type Asset = typeof assets.$inferSelect;
-export type NewAsset = typeof assets.$inferInsert;

@@ -1,39 +1,18 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import type {
-  NewAsset,
-  NewDocument,
-  NewProject,
-  NewRequirement,
-} from "./schema.ts";
-
-const sampleDir = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../data/sample",
-);
-
-export function loadSampleAssets(): NewAsset[] {
-  return sampleAssetSources.map(({ id, requirement, file }) => ({
-    id,
-    requirement,
-    base64: readFileSync(join(sampleDir, file)).toString("base64"),
-  }));
-}
+import type { NewDocument, NewProject, NewRequirement } from "./schema.ts";
 
 export const sampleAssetSources = [
   {
-    id: "asset_001",
+    id: "requirements/req_001/00000000-0000-4000-8000-000000000001",
     requirement: "req_001",
     file: "auth-flow.svg",
   },
   {
-    id: "asset_002",
+    id: "requirements/req_002/00000000-0000-4000-8000-000000000002",
     requirement: "req_002",
     file: "rbac-diagram.svg",
   },
   {
-    id: "asset_003",
+    id: "requirements/req_007/00000000-0000-4000-8000-000000000003",
     requirement: "req_007",
     file: "offline-sync.svg",
   },

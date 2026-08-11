@@ -1,8 +1,22 @@
+import { StorageError } from "@storagesdk/core";
 import { TRPCError } from "@trpc/server";
 
 type PostgresCause = {
   code?: string;
 };
+
+type StorageErrorCode = StorageError["code"];
+type TRPCErrorCode = TRPCError["code"];
+
+const storageErrorCodes = {
+  NotFound: "NOT_FOUND",
+  NotSupported: "METHOD_NOT_SUPPORTED",
+  Conflict: "CONFLICT",
+  Unauthorized: "UNAUTHORIZED",
+  InvalidArgument: "BAD_REQUEST",
+  Aborted: "CLIENT_CLOSED_REQUEST",
+  Provider: "INTERNAL_SERVER_ERROR",
+} satisfies Record<StorageErrorCode, TRPCErrorCode>;
 
 export function getPostgresCause(err: unknown): PostgresCause | undefined {
   let current: unknown = err;
@@ -43,4 +57,15 @@ export function throwConflictIfForeignKeyViolation(err: unknown): never {
     throw new TRPCError({ code: "CONFLICT" });
   }
   throw err;
+}
+
+export function rethrowStorageErrorForTRPC(err: unknown): never {
+  if (!(err instanceof StorageError)) {
+    throw err;
+  }
+
+  throw new TRPCError({
+    code: storageErrorCodes[err.code],
+    cause: err,
+  });
 }

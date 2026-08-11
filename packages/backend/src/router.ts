@@ -1,14 +1,18 @@
+import { randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { assets, documents, projects, requirements } from "./db/schema.ts";
+import { documents, projects, requirements } from "./db/schema.ts";
 import { publicProcedure, router } from "./trpc.ts";
 import {
+  rethrowStorageErrorForTRPC,
   throwConflictIfForeignKeyViolation,
   throwNotFoundIfForeignKeyViolation,
 } from "./db/errors.ts";
+import { type Storage } from "@storagesdk/core";
 
 const idSchema = z.string().min(1);
+const assetIdSchema = z.string().startsWith("requirements/").min(1);
 
 const projectInput = z.object({
   id: idSchema,
@@ -29,10 +33,15 @@ const requirementInput = z.object({
   document: idSchema,
 });
 
-const assetInput = z.object({
-  id: idSchema,
-  base64: z.string().min(1),
+const assetUploadInput = z.object({
+  body: z.instanceof(Uint8Array).refine((body) => body.byteLength > 0),
   requirement: idSchema,
+  metadata: z
+    .object({
+      contentType: z.string().min(1).optional(),
+      metadata: z.record(z.string(), z.string()).optional(),
+    })
+    .optional(),
 });
 
 function firstOrNullIfEmpty<T>(array: T[]): T | null {
@@ -47,6 +56,19 @@ function firstOrThrowNotFound<T>(array: T[] | null): T {
     throw new TRPCError({ code: "NOT_FOUND" });
   }
   return array[0];
+}
+
+async function listAllByPrefix(storage: Storage, prefix: string) {
+  const items = [];
+  let cursor: string | undefined;
+
+  do {
+    const page = await storage.list({ prefix, cursor });
+    items.push(...page.items);
+    cursor = page.cursor;
+  } while (cursor !== undefined);
+
+  return items;
 }
 
 const projectsRouter = router({
@@ -245,15 +267,20 @@ const requirementsRouter = router({
   }),
   delete: publicProcedure.input(idSchema).mutation(async (opts) => {
     const { input, ctx } = opts;
-    const { db } = ctx;
+    const { db, storage } = ctx;
 
     try {
-      return firstOrThrowNotFound(
-        await db
-          .delete(requirements)
-          .where(eq(requirements.id, input))
-          .returning(),
+      const requirement = firstOrThrowNotFound(
+        await db.select().from(requirements).where(eq(requirements.id, input)),
       );
+      const assets = await listAllByPrefix(storage, `requirements/${input}/`);
+
+      for (const asset of assets) {
+        await storage.delete(asset.path);
+      }
+      await db.delete(requirements).where(eq(requirements.id, input));
+
+      return requirement;
     } catch (err) {
       throwConflictIfForeignKeyViolation(err);
     }
@@ -263,56 +290,48 @@ const requirementsRouter = router({
 const assetsRouter = router({
   listByRequirement: publicProcedure.input(idSchema).query(async (opts) => {
     const { input, ctx } = opts;
-    const { db } = ctx;
 
+    return await listAllByPrefix(ctx.storage, `requirements/${input}/`);
+  }),
+  getById: publicProcedure.input(assetIdSchema).query(async (opts) => {
+    const { input, ctx } = opts;
+    const { storage } = ctx;
+
+    try {
+      return await storage.download(input);
+    } catch (err) {
+      rethrowStorageErrorForTRPC(err);
+    }
+  }),
+  upload: publicProcedure.input(assetUploadInput).mutation(async (opts) => {
+    const { input, ctx } = opts;
+    const { db, storage } = ctx;
     const requirement = firstOrNullIfEmpty(
-      await db.select().from(requirements).where(eq(requirements.id, input)),
+      await db
+        .select()
+        .from(requirements)
+        .where(eq(requirements.id, input.requirement)),
     );
 
     if (requirement == null) {
-      return [];
+      throw new TRPCError({ code: "NOT_FOUND" });
     }
 
-    return await db.select().from(assets).where(eq(assets.requirement, input));
-  }),
-  getById: publicProcedure.input(idSchema).query(async (opts) => {
-    const { input, ctx } = opts;
-    const { db } = ctx;
+    const path = `requirements/${input.requirement}/${randomUUID()}`;
 
-    return firstOrThrowNotFound(
-      await db.select().from(assets).where(eq(assets.id, input)),
-    );
+    return await storage.upload(path, input.body, input.metadata);
   }),
-  create: publicProcedure.input(assetInput).mutation(async (opts) => {
+  delete: publicProcedure.input(assetIdSchema).mutation(async (opts) => {
     const { input, ctx } = opts;
-    const { db } = ctx;
+    const { storage } = ctx;
 
     try {
-      const rows = await db
-        .insert(assets)
-        .values(input)
-        .onConflictDoNothing({ target: assets.id })
-        .returning();
+      const asset = await storage.head(input);
+      await storage.delete(input);
 
-      if (rows.length == 0) {
-        throw new TRPCError({ code: "CONFLICT" });
-      }
-
-      return rows[0];
+      return asset;
     } catch (err) {
-      throwNotFoundIfForeignKeyViolation(err);
-    }
-  }),
-  delete: publicProcedure.input(idSchema).mutation(async (opts) => {
-    const { input, ctx } = opts;
-    const { db } = ctx;
-
-    try {
-      return firstOrThrowNotFound(
-        await db.delete(assets).where(eq(assets.id, input)).returning(),
-      );
-    } catch (err) {
-      throwConflictIfForeignKeyViolation(err);
+      rethrowStorageErrorForTRPC(err);
     }
   }),
 });
