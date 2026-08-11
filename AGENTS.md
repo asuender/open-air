@@ -4,7 +4,9 @@ Open source AI-assisted requirements management. Learning experiment for buildin
 
 Read the (root project!) README file.
 
-In the frontend package, do not add any logic. Your task is to just edit the UI (this includes components, styles etc.) and leave connecting the logic to the user. You may only add bare minimal starter code with a comment like `// logic goes here`, just enough to make the code run.
+**Important**: do not add any logic. You may only add bare minimal starter code with a comment like `// logic goes here`, just enough to make the code compile.
+
+**Important**: For the UI package, instructions are similar. You may freely edit the UI (this includes components, styles etc.), but leave the connecting logic to the user.
 
 This is a learning project for exploring the technologies used here, just so you know.
 

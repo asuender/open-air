@@ -104,6 +104,28 @@ describe("projects", () => {
     });
   });
 
+  it("preserves the complete tree when deleting a populated project fails", async () => {
+    const assetPath =
+      "requirements/req_001/00000000-0000-4000-8000-000000000001";
+    await storage.upload(assetPath, "asset contents");
+
+    await expect(caller.projects.delete("proj_alpha")).rejects.toMatchObject({
+      code: "CONFLICT",
+    });
+    await expect(caller.projects.getById("proj_alpha")).resolves.toEqual(
+      sampleProjects[0],
+    );
+    await expect(caller.documents.getById("doc_alpha_srs")).resolves.toEqual(
+      sampleDocuments[0],
+    );
+    await expect(caller.requirements.getById("req_001")).resolves.toEqual(
+      sampleRequirements[0],
+    );
+    await expect(storage.head(assetPath)).resolves.toMatchObject({
+      path: assetPath,
+    });
+  });
+
   it("rejects deleting an unknown project", async () => {
     await expect(
       caller.projects.delete("unknown_project"),
@@ -232,6 +254,25 @@ describe("documents", () => {
     await expect(
       caller.documents.delete("doc_alpha_api"),
     ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("preserves requirements and assets when deleting a populated document fails", async () => {
+    const assetPath =
+      "requirements/req_004/00000000-0000-4000-8000-000000000001";
+    await storage.upload(assetPath, "asset contents");
+
+    await expect(
+      caller.documents.delete("doc_alpha_api"),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+    await expect(caller.documents.getById("doc_alpha_api")).resolves.toEqual(
+      sampleDocuments[1],
+    );
+    await expect(caller.requirements.getById("req_004")).resolves.toEqual(
+      sampleRequirements[3],
+    );
+    await expect(storage.head(assetPath)).resolves.toMatchObject({
+      path: assetPath,
+    });
   });
 
   it("rejects deleting an unknown document", async () => {
@@ -401,6 +442,31 @@ describe("requirements", () => {
     await expect(storage.head(associatedPath)).rejects.toMatchObject({
       code: "NotFound",
     });
+    await expect(storage.head(unrelatedPath)).resolves.toMatchObject({
+      path: unrelatedPath,
+    });
+  });
+
+  it("deletes associated assets across multiple storage pages", async () => {
+    const paths = Array.from(
+      { length: 101 },
+      (_, index) => `requirements/req_003/${index.toString().padStart(3, "0")}`,
+    );
+    const unrelatedPath = "requirements/req_004/unrelated";
+
+    await Promise.all([
+      ...paths.map((path) => storage.upload(path, "asset contents")),
+      storage.upload(unrelatedPath, "unrelated asset"),
+    ]);
+
+    await caller.requirements.delete("req_003");
+
+    await expect(
+      Promise.all(paths.map((path) => storage.head(path))),
+    ).rejects.toMatchObject({ code: "NotFound" });
+    await expect(
+      storage.list({ prefix: "requirements/req_003/" }),
+    ).resolves.toEqual({ items: [] });
     await expect(storage.head(unrelatedPath)).resolves.toMatchObject({
       path: unrelatedPath,
     });
