@@ -226,19 +226,22 @@ export function inMemoryAdapter(_config: InMemoryConfig): Adapter {
       },
 
       async head(
-        id: string,
+        _id: string,
         opts?: { signal?: AbortSignal },
       ): Promise<SnapshotInfo> {
         checkSignal(opts?.signal);
         throw new StorageError({ code: "NotSupported" });
       },
 
-      async delete(id: string, opts?: { signal?: AbortSignal }): Promise<void> {
+      async delete(
+        _id: string,
+        opts?: { signal?: AbortSignal },
+      ): Promise<void> {
         checkSignal(opts?.signal);
         throw new StorageError({ code: "NotSupported" });
       },
 
-      get(id: string): ReadOnlyAdapter {
+      get(_id: string): ReadOnlyAdapter {
         throw new StorageError({ code: "NotSupported" });
       },
     },
@@ -254,7 +257,7 @@ export function inMemoryAdapter(_config: InMemoryConfig): Adapter {
       },
 
       async head(
-        name: string,
+        _name: string,
         opts?: { signal?: AbortSignal },
       ): Promise<ForkInfo> {
         checkSignal(opts?.signal);
@@ -262,28 +265,28 @@ export function inMemoryAdapter(_config: InMemoryConfig): Adapter {
       },
 
       async delete(
-        name: string,
+        _name: string,
         opts?: { signal?: AbortSignal },
       ): Promise<void> {
         checkSignal(opts?.signal);
         throw new StorageError({ code: "NotSupported" });
       },
 
-      get(name: string): Adapter {
+      get(_name: string): Adapter {
         throw new StorageError({ code: "NotSupported" });
       },
 
-      async merge(name: string, opts?: MergeOptions): Promise<SnapshotInfo> {
+      async merge(_name: string, opts?: MergeOptions): Promise<SnapshotInfo> {
         checkSignal(opts?.signal);
         throw new StorageError({ code: "NotSupported" });
       },
 
-      async rebase(name: string, opts?: RebaseOptions): Promise<SnapshotInfo> {
+      async rebase(_name: string, opts?: RebaseOptions): Promise<SnapshotInfo> {
         checkSignal(opts?.signal);
         throw new StorageError({ code: "NotSupported" });
       },
 
-      async diff(name: string, opts?: DiffOptions): Promise<ForkDiff> {
+      async diff(_name: string, opts?: DiffOptions): Promise<ForkDiff> {
         checkSignal(opts?.signal);
         throw new StorageError({ code: "NotSupported" });
       },

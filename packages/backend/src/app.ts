@@ -1,9 +1,10 @@
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import cors from "cors";
 import express from "express";
-import { appRouter } from "./trpc/router.ts";
-import { db } from "./db/index.ts";
-import { storage } from "./storage/index.ts";
+import { appRouter } from "./api/router.ts";
+import { db } from "./db/drizzle.ts";
+import { storage } from "./storage.ts";
+import { createRepositories } from "./repository/helpers.ts";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -18,7 +19,7 @@ app.use(
   "/trpc",
   createExpressMiddleware({
     router: appRouter,
-    createContext: () => ({ db, storage }),
+    createContext: () => ({ ...createRepositories(db, storage) }),
   }),
 );
 

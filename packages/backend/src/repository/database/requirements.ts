@@ -1,0 +1,81 @@
+import {
+  requirements,
+  type NewRequirement,
+  type Requirement,
+} from "../../db/schema.ts";
+import { DatabaseRepository } from "../base.ts";
+import { eq, inArray } from "drizzle-orm";
+import {
+  firstOrThrowNotFound,
+  throwNotFoundIfForeignKeyViolation,
+} from "../helpers.ts";
+import { RepositoryError } from "../errors.ts";
+
+export class RequirementRepository extends DatabaseRepository {
+  async listByDocuments(ids: string | string[]): Promise<Requirement[]> {
+    if (typeof ids === "string") {
+      return await this.db
+        .select()
+        .from(requirements)
+        .where(eq(requirements.document, ids));
+    } else {
+      return await this.db
+        .select()
+        .from(requirements)
+        .where(inArray(requirements.document, ids));
+    }
+  }
+
+  async getById(id: string): Promise<Requirement> {
+    return firstOrThrowNotFound(
+      await this.db.select().from(requirements).where(eq(requirements.id, id)),
+      `Requirement with id = "${id}" does not exist.`,
+    );
+  }
+
+  async create(requirement: NewRequirement): Promise<Requirement> {
+    try {
+      const rows = await this.db
+        .insert(requirements)
+        .values(requirement)
+        .onConflictDoNothing()
+        .returning();
+
+      if (rows.length == 0) {
+        throw new RepositoryError({
+          code: "Conflict",
+          message: `Requirement with id = "${requirement.id}" already exists.`,
+        });
+      }
+
+      return rows[0];
+    } catch (err) {
+      throwNotFoundIfForeignKeyViolation(err);
+    }
+  }
+
+  async update(requirement: Requirement): Promise<Requirement> {
+    try {
+      return firstOrThrowNotFound(
+        await this.db
+          .update(requirements)
+          .set(requirement)
+          .where(eq(requirements.id, requirement.id))
+          .returning(),
+        `Could not update requirement with id = "${requirement.id}" as it does not exist.`,
+      );
+    } catch (err) {
+      throwNotFoundIfForeignKeyViolation(err);
+    }
+  }
+
+  async delete(id: string): Promise<Requirement> {
+    return firstOrThrowNotFound(
+      await this.db
+        .delete(requirements)
+        .where(eq(requirements.id, id))
+        .returning(),
+      `Could not delete requirement with id = "${id}" as it does not exist.`,
+    );
+  }
+}

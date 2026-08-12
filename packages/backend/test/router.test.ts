@@ -6,13 +6,14 @@ import {
   sampleRequirements,
 } from "../src/db/sample-data.js";
 import { seed } from "../src/db/seed.js";
-import { appRouter } from "../src/trpc/router.ts";
-import { createCallerFactory } from "../src/trpc/index.ts";
+import { appRouter } from "../src/api/router.ts";
+import { createCallerFactory } from "../src/api/trpc.ts";
 import { PGlite } from "@electric-sql/pglite";
 import * as schema from "../src/db/schema.ts";
 import { pushSchema } from "drizzle-kit/api-postgres";
 import { Storage } from "@storagesdk/core";
 import { inMemoryAdapter } from "@open-air/storage-adapter";
+import { createRepositories } from "../src/repository/helpers.ts";
 
 const client = new PGlite(); // ommitted url creates in-memory db
 const db = drizzle({ client });
@@ -29,7 +30,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   storage = new Storage({ adapter: inMemoryAdapter({}) });
-  caller = createCaller({ db, storage });
+  caller = createCaller({ ...createRepositories(db, storage) });
   await seed(db);
 });
 

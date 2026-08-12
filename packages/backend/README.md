@@ -15,3 +15,9 @@ pnpm seed           # seeds the local database
 [`src/router.ts`](./src/router.ts) defines and exports all tRPC procedures used by the client. They are being tested in [`test/router.test.ts`](./test/router.test.ts) using sample data from [`data/sample`](./data/sample/).
 
 Exports to other packages in this monorepo are limited to types only (see `exports` field in [`package.json`](./package.json))
+
+## Architectual patterns
+
+As a learning experience, I baked the following patterns into the backend:
+
+- Repository pattern (where each database table / storage bucket represents a single repository)
