@@ -7,6 +7,7 @@ import { DocumentRepository } from "./database/documents.ts";
 import { RequirementRepository } from "./database/requirements.ts";
 import { AssetRepository } from "./storage/assets.ts";
 import type { StorageErrorCode, RepositoryErrorCode } from "./errors.ts";
+import { mapErrors } from "../utils.ts";
 
 type PostgresCause = {
   code?: string;
@@ -81,6 +82,12 @@ export function rethrowStorageErrorForRepository(err: unknown): never {
     message: err.message,
   });
 }
+
+export const mapStorageErrors = <T>(operation: () => Promise<T>) =>
+  mapErrors(operation, rethrowStorageErrorForRepository);
+
+export const mapForeignKeyErrors = <T>(operation: () => Promise<T>) =>
+  mapErrors(operation, throwNotFoundIfForeignKeyViolation);
 
 export function createRepositories(db: typeof database, storage: Storage) {
   return {

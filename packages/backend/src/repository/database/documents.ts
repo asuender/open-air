@@ -2,10 +2,7 @@ import type { Document, NewDocument } from "../../db/schema.ts";
 import { documents } from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
 import { DatabaseRepository } from "../base.ts";
-import {
-  firstOrThrowNotFound,
-  throwNotFoundIfForeignKeyViolation,
-} from "../helpers.ts";
+import { firstOrThrowNotFound, mapForeignKeyErrors } from "../helpers.ts";
 import { RepositoryError } from "../errors.ts";
 
 export class DocumentRepository extends DatabaseRepository {
@@ -19,12 +16,12 @@ export class DocumentRepository extends DatabaseRepository {
   async getById(id: string): Promise<Document> {
     return firstOrThrowNotFound(
       await this.db.select().from(documents).where(eq(documents.id, id)),
-      `Requirement with id = "${id} does not exist."`,
+      `Document with id = "${id}" does not exist.`,
     );
   }
 
   async create(document: NewDocument): Promise<Document> {
-    try {
+    return mapForeignKeyErrors(async () => {
       const rows = await this.db
         .insert(documents)
         .values(document)
@@ -39,24 +36,20 @@ export class DocumentRepository extends DatabaseRepository {
       }
 
       return rows[0];
-    } catch (err) {
-      throwNotFoundIfForeignKeyViolation(err);
-    }
+    });
   }
 
   async update(document: Document): Promise<Document> {
-    try {
-      return firstOrThrowNotFound(
+    return mapForeignKeyErrors(async () =>
+      firstOrThrowNotFound(
         await this.db
           .update(documents)
           .set(document)
           .where(eq(documents.id, document.id))
           .returning(),
         `Could not update document with id = "${document.id}" as it does not exist.`,
-      );
-    } catch (err) {
-      throwNotFoundIfForeignKeyViolation(err);
-    }
+      ),
+    );
   }
 
   async delete(id: string): Promise<Document> {

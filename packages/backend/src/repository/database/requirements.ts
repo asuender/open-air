@@ -5,10 +5,7 @@ import {
 } from "../../db/schema.ts";
 import { DatabaseRepository } from "../base.ts";
 import { eq, inArray } from "drizzle-orm";
-import {
-  firstOrThrowNotFound,
-  throwNotFoundIfForeignKeyViolation,
-} from "../helpers.ts";
+import { firstOrThrowNotFound, mapForeignKeyErrors } from "../helpers.ts";
 import { RepositoryError } from "../errors.ts";
 
 export class RequirementRepository extends DatabaseRepository {
@@ -34,7 +31,7 @@ export class RequirementRepository extends DatabaseRepository {
   }
 
   async create(requirement: NewRequirement): Promise<Requirement> {
-    try {
+    return mapForeignKeyErrors(async () => {
       const rows = await this.db
         .insert(requirements)
         .values(requirement)
@@ -49,24 +46,20 @@ export class RequirementRepository extends DatabaseRepository {
       }
 
       return rows[0];
-    } catch (err) {
-      throwNotFoundIfForeignKeyViolation(err);
-    }
+    });
   }
 
   async update(requirement: Requirement): Promise<Requirement> {
-    try {
-      return firstOrThrowNotFound(
+    return mapForeignKeyErrors(async () =>
+      firstOrThrowNotFound(
         await this.db
           .update(requirements)
           .set(requirement)
           .where(eq(requirements.id, requirement.id))
           .returning(),
         `Could not update requirement with id = "${requirement.id}" as it does not exist.`,
-      );
-    } catch (err) {
-      throwNotFoundIfForeignKeyViolation(err);
-    }
+      ),
+    );
   }
 
   async delete(id: string): Promise<Requirement> {
