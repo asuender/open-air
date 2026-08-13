@@ -9,7 +9,7 @@ import { documents, projects, requirements } from "./schema.ts";
 
 type Db = typeof defaultDb;
 
-export async function seed(db: Db) {
+export async function seed(db: Db): Promise<void> {
   // Clear in FK-safe order
   await db.delete(requirements);
   await db.delete(documents);

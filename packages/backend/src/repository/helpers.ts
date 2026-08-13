@@ -83,13 +83,24 @@ export function rethrowStorageErrorForRepository(err: unknown): never {
   });
 }
 
-export const mapStorageErrors = <T>(operation: () => Promise<T>) =>
+export const mapStorageErrors = <T>(operation: () => Promise<T>): Promise<T> =>
   mapErrors(operation, rethrowStorageErrorForRepository);
 
-export const mapForeignKeyErrors = <T>(operation: () => Promise<T>) =>
-  mapErrors(operation, throwNotFoundIfForeignKeyViolation);
+export const mapForeignKeyErrors = <T>(
+  operation: () => Promise<T>,
+): Promise<T> => mapErrors(operation, throwNotFoundIfForeignKeyViolation);
 
-export function createRepositories(db: typeof database, storage: Storage) {
+export type Repositories = {
+  projectRepo: ProjectRepository;
+  documentRepo: DocumentRepository;
+  requirementRepo: RequirementRepository;
+  assetRepo: AssetRepository;
+};
+
+export function createRepositories(
+  db: typeof database,
+  storage: Storage,
+): Repositories {
   return {
     projectRepo: new ProjectRepository(db),
     documentRepo: new DocumentRepository(db),

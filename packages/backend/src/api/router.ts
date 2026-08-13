@@ -36,7 +36,10 @@ const assetUploadInput = z.object({
     .optional(),
 });
 
-async function deleteReqsAndAssets(docIds: string | string[], ctx: Context) {
+async function deleteReqsAndAssets(
+  docIds: string | string[],
+  ctx: Context,
+): Promise<void> {
   const { requirementRepo, assetRepo } = ctx;
 
   const reqs = await requirementRepo.listByDocuments(docIds);

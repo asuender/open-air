@@ -2,12 +2,18 @@ import type { Storage } from "@storagesdk/core";
 import { StorageRepository } from "../base.ts";
 import { mapStorageErrors } from "../helpers.ts";
 import { randomUUID } from "node:crypto";
+import type {
+  BodyInput,
+  StorageItem,
+  StorageItemMeta,
+  UploadOptions,
+} from "@storagesdk/core/adapter";
 
-type UploadBody = Parameters<Storage["upload"]>[1];
-type UploadOptions = Parameters<Storage["upload"]>[2];
-
-async function listAllByPrefix(storage: Storage, prefix: string) {
-  const items = [];
+async function listAllByPrefix(
+  storage: Storage,
+  prefix: string,
+): Promise<StorageItemMeta[]> {
+  const items: StorageItemMeta[] = [];
   let cursor: string | undefined;
 
   do {
@@ -20,28 +26,28 @@ async function listAllByPrefix(storage: Storage, prefix: string) {
 }
 
 export class AssetRepository extends StorageRepository {
-  async listByRequirement(id: string) {
+  async listByRequirement(id: string): Promise<StorageItemMeta[]> {
     return mapStorageErrors(() =>
       listAllByPrefix(this.storage, `requirements/${id}/`),
     );
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<StorageItem> {
     return mapStorageErrors(() => this.storage.download(id));
   }
 
   async upload(
     requirementId: string,
-    body: UploadBody,
+    body: BodyInput,
     options?: UploadOptions,
-  ) {
+  ): Promise<StorageItemMeta> {
     return mapStorageErrors(() => {
       const path = `requirements/${requirementId}/${randomUUID()}`;
       return this.storage.upload(path, body, options);
     });
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<StorageItemMeta> {
     return mapStorageErrors(async () => {
       const asset = await this.storage.head(id);
       await this.storage.delete(id);
