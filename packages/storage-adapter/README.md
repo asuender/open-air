@@ -1,12 +1,11 @@
 # @open-air/storage-adapter
 
-Minimal implementation of an in-memory object storage to be used via [`storagesdk`](https://storagesdk.dev/). It satisfies its test suite, with the following exceptions:
+Minimal implementation of in-memory object storage for use with [`storagesdk`](https://storagesdk.dev/).
 
-- tests opt out most of the `url*` methods
-- adapter currently does not support snapshot and fork capabilities.
+The adapter supports the core storage operations covered by the conformance suite. Signed URL tests are disabled, and snapshot and fork operations intentionally return `NotSupported`. Because the suite currently exercises snapshot and fork operations, those tests are expected to fail.
 
-You may verify this yourself by running:
+Run the conformance suite with:
 
 ```sh
-pnpm test        # runs conformance suite
+pnpm test
 ```

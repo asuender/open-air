@@ -6,7 +6,7 @@ import { RepositoryError } from "../errors.ts";
 
 export class ProjectRepository extends DatabaseRepository {
   async list(): Promise<Project[]> {
-    return await this.db.select().from(projects);
+    return this.db.select().from(projects);
   }
 
   async getById(id: string): Promise<Project> {

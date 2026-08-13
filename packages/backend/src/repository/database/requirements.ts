@@ -11,12 +11,12 @@ import { RepositoryError } from "../errors.ts";
 export class RequirementRepository extends DatabaseRepository {
   async listByDocuments(ids: string | string[]): Promise<Requirement[]> {
     if (typeof ids === "string") {
-      return await this.db
+      return this.db
         .select()
         .from(requirements)
         .where(eq(requirements.document, ids));
     } else {
-      return await this.db
+      return this.db
         .select()
         .from(requirements)
         .where(inArray(requirements.document, ids));
@@ -38,7 +38,7 @@ export class RequirementRepository extends DatabaseRepository {
         .onConflictDoNothing()
         .returning();
 
-      if (rows.length == 0) {
+      if (rows.length === 0) {
         throw new RepositoryError({
           code: "Conflict",
           message: `Requirement with id = "${requirement.id}" already exists.`,

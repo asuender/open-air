@@ -1,7 +1,7 @@
 import type { Storage } from "@storagesdk/core";
 import { StorageRepository } from "../base.ts";
 import { mapStorageErrors } from "../helpers.ts";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 type UploadBody = Parameters<Storage["upload"]>[1];
 type UploadOptions = Parameters<Storage["upload"]>[2];

@@ -7,10 +7,7 @@ import { RepositoryError } from "../errors.ts";
 
 export class DocumentRepository extends DatabaseRepository {
   async listByProject(id: string): Promise<Document[]> {
-    return await this.db
-      .select()
-      .from(documents)
-      .where(eq(documents.project, id));
+    return this.db.select().from(documents).where(eq(documents.project, id));
   }
 
   async getById(id: string): Promise<Document> {

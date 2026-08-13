@@ -2,3 +2,4 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/pglite";
 
 export const db = drizzle(process.env.DATABASE_URL!);
+export const Transaction = db.transaction;

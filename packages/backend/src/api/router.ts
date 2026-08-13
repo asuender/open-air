@@ -120,7 +120,7 @@ const documentsRouter = router({
 
     await deleteReqsAndAssets(input, ctx);
 
-    return await documentRepo.delete(input);
+    return documentRepo.delete(input);
   }),
 });
 
@@ -160,7 +160,7 @@ const requirementsRouter = router({
       await assetRepo.delete(asset.path);
     }
 
-    return await requirementRepo.delete(input);
+    return requirementRepo.delete(input);
   }),
 });
 

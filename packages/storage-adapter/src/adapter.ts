@@ -28,7 +28,7 @@ import type {
   UrlOptions,
 } from "@storagesdk/core/adapter";
 import { asStorageError } from "./errors.ts";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 
 export interface InMemoryConfig {}
 
@@ -133,7 +133,7 @@ export function inMemoryAdapter(_config: InMemoryConfig): Adapter {
 
       // we intentionally keep the cursor at -1 if not found
       // to satisfy the exclusive condition in filtering
-      let cursorIdx = items.findIndex((item) => item.path == cursor);
+      let cursorIdx = items.findIndex((item) => item.path === cursor);
 
       matching = items.filter(
         (item, idx) => item.path.startsWith(prefix) && idx > cursorIdx,
