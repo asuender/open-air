@@ -50,15 +50,19 @@ export class RequirementRepository extends DatabaseRepository {
   }
 
   async update(requirement: Requirement): Promise<Requirement> {
-    return mapForeignKeyErrors(async () =>
-      firstOrThrowNotFound(
-        await this.db
+    const rows = await mapForeignKeyErrors(
+      async () =>
+        this.db
           .update(requirements)
           .set(requirement)
           .where(eq(requirements.id, requirement.id))
           .returning(),
-        `Could not update requirement with id = "${requirement.id}" as it does not exist.`,
-      ),
+      `Could not update requirement with id = "${requirement.id}" because the parent document with id = "${requirement.document}" does not exist.`,
+    );
+
+    return firstOrThrowNotFound(
+      rows,
+      `Could not update requirement with id = "${requirement.id}" as it does not exist.`,
     );
   }
 

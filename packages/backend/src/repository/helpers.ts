@@ -57,38 +57,62 @@ export function throwConflictIfUniqueViolation(err: unknown): never {
 }
 
 /** FK failure on insert/update usually means the referenced parent row is missing. */
-export function throwNotFoundIfForeignKeyViolation(err: unknown): never {
+export function throwNotFoundIfForeignKeyViolation(
+  err: unknown,
+  message?: string,
+): never {
   if (isForeignKeyViolation(err)) {
-    throw new RepositoryError({ code: "NotFound", message: "" });
+    throw new RepositoryError({ code: "NotFound", message: message ?? "" });
   }
   throw err;
 }
 
 /** FK failure on delete usually means dependent child rows still exist. */
-export function throwConflictIfForeignKeyViolation(err: unknown): never {
+export function throwConflictIfForeignKeyViolation(
+  err: unknown,
+  message?: string,
+): never {
   if (isForeignKeyViolation(err)) {
-    throw new RepositoryError({ code: "Conflict", message: "" });
+    throw new RepositoryError({ code: "Conflict", message: message ?? "" });
   }
   throw err;
 }
 
-export function rethrowStorageErrorForRepository(err: unknown): never {
+export function rethrowStorageErrorForRepository(
+  err: unknown,
+  message?: string,
+): never {
   if (!(err instanceof StorageError)) {
     throw err;
   }
 
   throw new RepositoryError({
     code: storageErrorCodes[err.code],
-    message: err.message,
+    message: message ?? err.message,
   });
 }
 
-export const mapStorageErrors = <T>(operation: () => Promise<T>): Promise<T> =>
-  mapErrors(operation, rethrowStorageErrorForRepository);
+export function isNotFound(err: unknown): boolean {
+  if (!(err instanceof RepositoryError)) {
+    return false;
+  }
+
+  return err.code === "NotFound";
+}
+
+export const mapStorageErrors = <T>(
+  operation: () => Promise<T>,
+  message?: string,
+): Promise<T> =>
+  mapErrors(operation, (err) => rethrowStorageErrorForRepository(err, message));
 
 export const mapForeignKeyErrors = <T>(
   operation: () => Promise<T>,
-): Promise<T> => mapErrors(operation, throwNotFoundIfForeignKeyViolation);
+  message?: string,
+): Promise<T> =>
+  mapErrors(operation, (err) =>
+    throwNotFoundIfForeignKeyViolation(err, message),
+  );
 
 export type Repositories = {
   projectRepo: ProjectRepository;

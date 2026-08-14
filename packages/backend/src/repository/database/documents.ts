@@ -37,15 +37,19 @@ export class DocumentRepository extends DatabaseRepository {
   }
 
   async update(document: Document): Promise<Document> {
-    return mapForeignKeyErrors(async () =>
-      firstOrThrowNotFound(
-        await this.db
+    const rows = await mapForeignKeyErrors(
+      async () =>
+        this.db
           .update(documents)
           .set(document)
           .where(eq(documents.id, document.id))
           .returning(),
-        `Could not update document with id = "${document.id}" as it does not exist.`,
-      ),
+      `Could not update document with id = "${document.id}" because the parent project with id = "${document.project}" does not exist.`,
+    );
+
+    return firstOrThrowNotFound(
+      rows,
+      `Could not update document with id = "${document.id}" as it does not exist.`,
     );
   }
 
