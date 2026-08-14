@@ -28,6 +28,10 @@ This represents a monorepo bundling multiple packages:
 - `@open-air/backend`: Backend, written in Express.js and holding the tRPC router. See [`packages/backend/README.md`](./packages/backend/README.md) for more details.
 - `@open-air/storage-adapter`: Custom in-memory storage adapter for [`storagesdk`](https://storagesdk.dev/), used for mocking the object storage in tests. See [`packages/storage-adapter/README.md`](./packages/storage-adapter/README.md) for more details.
 
+## Other
+
+This project uses [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) and [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) (migrated from ESLint and Prettier).
+
 ## License
 
 MIT

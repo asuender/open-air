@@ -17,3 +17,5 @@ Some scripts in the individual package's `package.json` are wired through the gl
 Test-driven development is encouraged. Based on the note above, optimal development would be (1) the user defining interfaces, types, functions etc. and filling them with placeholders to make the code compile and (2) you writing high-quality tests, which the user will iterate on.
 
 Tests are respectively located in `test` folders, i.e. `packages/backend/test/`.
+
+After every change, run `pnpm lint` (runs Oxlint).
