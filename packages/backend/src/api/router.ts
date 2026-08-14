@@ -1,7 +1,8 @@
 import { z } from "zod";
+
+import { hasItems } from "../utils.ts";
 import { publicProcedure, router } from "./trpc.ts";
 import { type Context } from "./trpc.ts";
-import { hasItems } from "../utils.ts";
 
 const idSchema = z.string().min(1);
 const assetIdSchema = z.string().startsWith("requirements/").min(1);

@@ -1,4 +1,5 @@
 import { storageAdapterTestSuite } from "@storagesdk/adapters/test-suite";
+
 import { inMemoryAdapter } from "../src/adapter.js";
 
 storageAdapterTestSuite({

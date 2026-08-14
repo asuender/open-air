@@ -1,4 +1,5 @@
 import { pathToFileURL } from "node:url";
+
 import { db as defaultDb } from "./drizzle.ts";
 import {
   sampleDocuments,

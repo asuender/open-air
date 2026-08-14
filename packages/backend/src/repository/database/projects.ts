@@ -1,8 +1,9 @@
+import { eq } from "drizzle-orm";
+
 import { projects, type NewProject, type Project } from "../../db/schema.ts";
 import { DatabaseRepository } from "../base.ts";
-import { firstOrThrowNotFound } from "../helpers.ts";
-import { eq } from "drizzle-orm";
 import { RepositoryError } from "../errors.ts";
+import { firstOrThrowNotFound } from "../helpers.ts";
 
 export class ProjectRepository extends DatabaseRepository {
   async list(): Promise<Project[]> {

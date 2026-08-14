@@ -1,9 +1,11 @@
-import type { Document, NewDocument } from "../../db/schema.ts";
-import { documents } from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
+
+import type { Document, NewDocument } from "../../db/schema.ts";
+
+import { documents } from "../../db/schema.ts";
 import { DatabaseRepository } from "../base.ts";
-import { firstOrThrowNotFound, mapForeignKeyErrors } from "../helpers.ts";
 import { RepositoryError } from "../errors.ts";
+import { firstOrThrowNotFound, mapForeignKeyErrors } from "../helpers.ts";
 
 export class DocumentRepository extends DatabaseRepository {
   async listByProject(id: string): Promise<Document[]> {

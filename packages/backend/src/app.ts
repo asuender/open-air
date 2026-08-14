@@ -1,10 +1,11 @@
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import cors from "cors";
 import express from "express";
+
 import { appRouter } from "./api/router.ts";
 import { db } from "./db/drizzle.ts";
-import { storage } from "./storage.ts";
 import { createRepositories } from "./repository/helpers.ts";
+import { storage } from "./storage.ts";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;

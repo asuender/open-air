@@ -1,10 +1,3 @@
-import {
-  checkSignal,
-  defineAdapter,
-  readStreamToBytes,
-  StorageError,
-  toWebStream,
-} from "@storagesdk/core/adapter";
 import type {
   Adapter,
   BodyInput,
@@ -27,8 +20,17 @@ import type {
   UploadUrlResult,
   UrlOptions,
 } from "@storagesdk/core/adapter";
-import { asStorageError } from "./errors.ts";
+
+import {
+  checkSignal,
+  defineAdapter,
+  readStreamToBytes,
+  StorageError,
+  toWebStream,
+} from "@storagesdk/core/adapter";
 import { createHash } from "node:crypto";
+
+import { asStorageError } from "./errors.ts";
 
 export interface InMemoryConfig {}
 

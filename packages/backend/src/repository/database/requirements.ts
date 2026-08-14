@@ -1,12 +1,13 @@
+import { eq, inArray } from "drizzle-orm";
+
 import {
   requirements,
   type NewRequirement,
   type Requirement,
 } from "../../db/schema.ts";
 import { DatabaseRepository } from "../base.ts";
-import { eq, inArray } from "drizzle-orm";
-import { firstOrThrowNotFound, mapForeignKeyErrors } from "../helpers.ts";
 import { RepositoryError } from "../errors.ts";
+import { firstOrThrowNotFound, mapForeignKeyErrors } from "../helpers.ts";
 
 export class RequirementRepository extends DatabaseRepository {
   async listByDocuments(ids: string | string[]): Promise<Requirement[]> {

@@ -1,4 +1,5 @@
 import type { Storage } from "@storagesdk/core";
+
 import type { db as database } from "../db/drizzle.ts";
 
 export abstract class DatabaseRepository {

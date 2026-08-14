@@ -1,18 +1,19 @@
+import { PGlite } from "@electric-sql/pglite";
+import { inMemoryAdapter } from "@open-air/storage-adapter";
+import { Storage } from "@storagesdk/core";
+import { pushSchema } from "drizzle-kit/api-postgres";
 import { drizzle } from "drizzle-orm/pglite";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+
+import { appRouter } from "../src/api/router.ts";
+import { createCallerFactory } from "../src/api/trpc.ts";
 import {
   sampleDocuments,
   sampleProjects,
   sampleRequirements,
 } from "../src/db/sample-data.js";
-import { seed } from "../src/db/seed.js";
-import { appRouter } from "../src/api/router.ts";
-import { createCallerFactory } from "../src/api/trpc.ts";
-import { PGlite } from "@electric-sql/pglite";
 import * as schema from "../src/db/schema.ts";
-import { pushSchema } from "drizzle-kit/api-postgres";
-import { Storage } from "@storagesdk/core";
-import { inMemoryAdapter } from "@open-air/storage-adapter";
+import { seed } from "../src/db/seed.js";
 import { createRepositories } from "../src/repository/helpers.ts";
 
 const client = new PGlite(); // ommitted url creates in-memory db

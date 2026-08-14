@@ -1,5 +1,6 @@
-import baseConfig from "../../oxlint-typescript.config.ts";
 import { defineConfig } from "oxlint";
+
+import baseConfig from "../../oxlint-typescript.config.ts";
 
 export default defineConfig({
   extends: [baseConfig],
