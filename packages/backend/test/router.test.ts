@@ -1,8 +1,9 @@
 import { PGlite } from "@electric-sql/pglite";
 import { inMemoryAdapter } from "@open-air/storage-adapter";
 import { Storage } from "@storagesdk/core";
-import { pushSchema } from "drizzle-kit/api-postgres";
 import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
+import { fileURLToPath } from "node:url";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { appRouter } from "../src/api/router.ts";
@@ -12,7 +13,6 @@ import {
   sampleProjects,
   sampleRequirements,
 } from "../src/db/sample-data.js";
-import * as schema from "../src/db/schema.ts";
 import { seed } from "../src/db/seed.js";
 import { createRepositories } from "../src/repository/helpers.ts";
 
@@ -24,9 +24,9 @@ let storage: Storage;
 let caller: ReturnType<typeof createCaller>;
 
 beforeAll(async () => {
-  // see https://github.com/drizzle-team/drizzle-orm/discussions/4373
-  const { apply } = await pushSchema(schema, db);
-  await apply();
+  await migrate(db, {
+    migrationsFolder: fileURLToPath(new URL("../drizzle", import.meta.url)),
+  });
 });
 
 beforeEach(async () => {
