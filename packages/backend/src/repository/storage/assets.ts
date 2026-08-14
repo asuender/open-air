@@ -9,7 +9,7 @@ import type {
 import { randomUUID } from "node:crypto";
 
 import { StorageRepository } from "../base.ts";
-import { mapStorageErrors } from "../helpers.ts";
+import { isNotFound, mapStorageErrors } from "../helpers.ts";
 
 async function listAllByPrefix(
   storage: Storage,
@@ -49,12 +49,32 @@ export class AssetRepository extends StorageRepository {
     });
   }
 
-  async delete(id: string): Promise<StorageItemMeta> {
-    return mapStorageErrors(async () => {
-      const asset = await this.storage.head(id);
-      await this.storage.delete(id);
+  delete(id: string): Promise<StorageItemMeta>;
+  delete(
+    id: string,
+    options: { ignoreMissing?: false },
+  ): Promise<StorageItemMeta>;
+  delete(
+    id: string,
+    options: { ignoreMissing: true },
+  ): Promise<StorageItemMeta | undefined>;
+  async delete(
+    id: string,
+    options: { ignoreMissing?: boolean } = {},
+  ): Promise<StorageItemMeta | undefined> {
+    try {
+      return await mapStorageErrors(async () => {
+        const asset = await this.storage.head(id);
+        await this.storage.delete(id);
 
-      return asset;
-    });
+        return asset;
+      });
+    } catch (err) {
+      if (options.ignoreMissing && isNotFound(err)) {
+        return undefined;
+      }
+
+      throw err;
+    }
   }
 }
