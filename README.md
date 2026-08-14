@@ -1,6 +1,6 @@
 # open-air
 
-> AI declaration: there is some AI-generated code here, but as stated in the [AGENTS.md](./AGENTS.md) file, it only affects raw UI related stuff as I find it boring. On the other hand, any logic is (and will be) handcrafted. Latter goes for any documentation as well.
+> AI declaration: there is some AI-generated code here, but as stated in the [AGENTS.md](./AGENTS.md) file, it only affects raw UI related stuff and tests. Any logic is (and will be) handcrafted. Latter goes for any documentation as well.
 
 > This is a learning project for exploring the tech stack used here, just so you know.
 
@@ -16,6 +16,8 @@ pnpm dev
 # or stark stack individually:
 pnpm dev:backend
 pnpm dev:web
+
+pnpm test
 ```
 
 ## Components

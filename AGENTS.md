@@ -11,3 +11,9 @@ Read the (root project!) README file.
 This is a learning project for exploring the technologies used here, just so you know.
 
 Some scripts in the individual package's `package.json` are wired through the global `package.json`.
+
+## Development
+
+Test-driven development is encouraged. Based on the note above, optimal development would be (1) the user defining interfaces, types, functions etc. and filling them with placeholders to make the code compile and (2) you writing high-quality tests, which the user will iterate on.
+
+Tests are respectively located in `test` folders, i.e. `packages/backend/test/`.
