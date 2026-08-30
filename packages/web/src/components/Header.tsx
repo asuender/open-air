@@ -1,12 +1,14 @@
 import { Flex, Link as RadixLink, Heading } from "@radix-ui/themes";
-import { NavLink } from "react-router";
+import { useLocation } from "preact-iso";
 
 const navItems = [
-  { to: "/", label: "Overview", end: true },
-  { to: "/requirements", label: "Requirements", end: false },
+  { href: "/", label: "Overview", end: true },
+  { href: "/requirements", label: "Requirements", end: false },
 ] as const;
 
 export function Header() {
+  const { path } = useLocation();
+
   return (
     <Flex
       asChild
@@ -22,19 +24,23 @@ export function Header() {
         </Heading>
         <Flex asChild gap="4" align="center">
           <nav>
-            {navItems.map(({ to, label, end }) => (
-              <RadixLink key={to} asChild weight="medium" underline="none">
-                <NavLink
-                  to={to}
-                  end={end}
-                  style={({ isActive }) => ({
-                    color: isActive ? "var(--accent-11)" : "var(--gray-11)",
-                  })}
-                >
-                  {label}
-                </NavLink>
-              </RadixLink>
-            ))}
+            {navItems.map(({ href, label, end }) => {
+              const isActive = end ? path === href : path.startsWith(href);
+
+              return (
+                <RadixLink key={href} asChild weight="medium" underline="none">
+                  <a
+                    href={href}
+                    aria-current={isActive ? "page" : undefined}
+                    style={{
+                      color: isActive ? "var(--accent-11)" : "var(--gray-11)",
+                    }}
+                  >
+                    {label}
+                  </a>
+                </RadixLink>
+              );
+            })}
           </nav>
         </Flex>
       </header>
