@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.0.1",
-  "description": "Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, oRPC, Vite + React, Drizzle and Express.",
+  "description": "Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, oRPC, Vite + Preact, Drizzle and Express.",
   "workspaces": [
     "packages/*"
   ],

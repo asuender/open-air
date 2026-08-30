@@ -12,17 +12,16 @@
     "@open-air/backend": "workspace:*",
     "@orpc/tanstack-query": "2.0.0-beta.32",
     "@radix-ui/themes": "^3.3.0",
-    "@tanstack/react-query": "^5.101.4",
+    "@tanstack/preact-query": "^5.102.8",
+    "preact": "^10.29.8",
+    "preact-iso": "^2.12.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router": "^8.3.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
     "@types/node": "^24.13.2",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
   }

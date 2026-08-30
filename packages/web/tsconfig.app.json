@@ -12,7 +12,8 @@
     "moduleResolution": "bundler",
     "moduleDetection": "force",
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   },
   "include": ["src"]
 }
