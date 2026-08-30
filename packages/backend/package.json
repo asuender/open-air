@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./src/client.ts"
-    }
+    ".": "./src/client.ts"
   },
   "scripts": {
     "dev": "tsx watch src/app.ts",
@@ -14,15 +12,17 @@
     "test": "vitest --clearScreen"
   },
   "dependencies": {
-    "@open-air/storage-adapter": "workspace:*",
     "@electric-sql/pglite": "^0.5.4",
+    "@open-air/storage-adapter": "workspace:*",
+    "@orpc/server": "2.0.0-beta.32",
+    "@orpc/client": "2.0.0-beta.32",
     "@storagesdk/adapters": "^0.11.0",
     "@storagesdk/core": "^0.5.0",
-    "@trpc/server": "^11.18.0",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "drizzle-orm": "1.0.0-rc.4",
     "express": "^5.2.1",
+    "redis": "^6.2.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

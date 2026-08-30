@@ -10,11 +10,9 @@
   },
   "dependencies": {
     "@open-air/backend": "workspace:*",
+    "@orpc/tanstack-query": "2.0.0-beta.32",
     "@radix-ui/themes": "^3.3.0",
     "@tanstack/react-query": "^5.101.4",
-    "@trpc/client": "^11.18.0",
-    "@trpc/react-query": "^11.18.0",
-    "@trpc/tanstack-react-query": "^11.18.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router": "^8.3.0",

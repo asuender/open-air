@@ -1,15 +1,7 @@
 import { StorageError } from "@storagesdk/core";
-import { TRPCError } from "@trpc/server";
 import { describe, expect, it } from "vitest";
 
 import {
-  createCallerFactory,
-  publicProcedure,
-  router,
-  type Context,
-} from "../src/api/trpc.ts";
-import {
-  RepositoryError,
   type RepositoryErrorCode,
   type StorageErrorCode,
 } from "../src/repository/errors.ts";
@@ -34,27 +26,6 @@ const storageErrorMappings = [
 ] as const satisfies ReadonlyArray<
   readonly [StorageErrorCode, RepositoryErrorCode]
 >;
-
-const trpcErrorMappings = [
-  ["NotFound", "NOT_FOUND"],
-  ["NotSupported", "NOT_IMPLEMENTED"],
-  ["BadRequest", "BAD_REQUEST"],
-  ["Conflict", "CONFLICT"],
-  ["Unauthorized", "UNAUTHORIZED"],
-  ["Aborted", "CLIENT_CLOSED_REQUEST"],
-  ["Internal", "INTERNAL_SERVER_ERROR"],
-] as const satisfies ReadonlyArray<
-  readonly [RepositoryErrorCode, TRPCError["code"]]
->;
-
-let procedureError: Error;
-const testRouter = router({
-  fail: publicProcedure.query(() => {
-    throw procedureError;
-  }),
-});
-const createTestCaller = createCallerFactory(testRouter);
-const unusedContext = null as unknown as Context;
 
 describe("storage error mapping", () => {
   it.each(storageErrorMappings)("maps %s to %s", (storageCode, repoCode) => {
@@ -128,33 +99,5 @@ describe("PostgreSQL error mapping", () => {
     expect(() => throwConflictIfUniqueViolation(error)).toThrow(error);
     expect(() => throwNotFoundIfForeignKeyViolation(error)).toThrow(error);
     expect(() => throwConflictIfForeignKeyViolation(error)).toThrow(error);
-  });
-});
-
-describe("tRPC repository error mapping", () => {
-  it.each(trpcErrorMappings)("maps %s to %s", async (repoCode, trpcCode) => {
-    const cause = new RepositoryError({
-      code: repoCode,
-      message: `${repoCode} repository error`,
-    });
-    procedureError = cause;
-    const caller = createTestCaller(unusedContext);
-
-    await expect(caller.fail()).rejects.toMatchObject({
-      code: trpcCode,
-      message: cause.message,
-      cause,
-    });
-  });
-
-  it("does not remap non-repository errors", async () => {
-    const cause = new Error("unexpected");
-    procedureError = cause;
-    const caller = createTestCaller(unusedContext);
-
-    await expect(caller.fail()).rejects.toMatchObject({
-      code: "INTERNAL_SERVER_ERROR",
-      cause,
-    });
   });
 });

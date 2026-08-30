@@ -1,5 +1,6 @@
 import { PGlite } from "@electric-sql/pglite";
 import { inMemoryAdapter } from "@open-air/storage-adapter";
+import { createRouterClient } from "@orpc/server";
 import { Storage } from "@storagesdk/core";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
@@ -7,7 +8,6 @@ import { fileURLToPath } from "node:url";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { appRouter } from "../src/api/router.ts";
-import { createCallerFactory } from "../src/api/trpc.ts";
 import {
   sampleDocuments,
   sampleProjects,
@@ -19,9 +19,8 @@ import { createRepositories } from "../src/repository/helpers.ts";
 const client = new PGlite(); // ommitted url creates in-memory db
 const db = drizzle({ client });
 
-const createCaller = createCallerFactory(appRouter);
 let storage: Storage;
-let caller: ReturnType<typeof createCaller>;
+let caller: ReturnType<typeof createRouterClient<typeof appRouter>>;
 
 beforeAll(async () => {
   await migrate(db, {
@@ -31,7 +30,9 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   storage = new Storage({ adapter: inMemoryAdapter({}) });
-  caller = createCaller({ ...createRepositories(db, storage) });
+  caller = createRouterClient(appRouter, {
+    context: createRepositories(db, storage),
+  });
   await seed(db);
 });
 

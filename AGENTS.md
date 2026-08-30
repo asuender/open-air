@@ -1,6 +1,6 @@
 # Agent instructions
 
-Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, tRPC, Vite + React, Drizzle, Express and optionally, SST.
+Open source AI-assisted requirements management. Learning experiment for building a monorepo with TypeScript, oRPC, Vite + React, Drizzle, Express and optionally, SST.
 
 Read the (root project!) README file.
 

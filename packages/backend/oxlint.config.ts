@@ -8,7 +8,7 @@ export default defineConfig({
   env: {
     node: true,
   },
-  ignorePatterns: ["dist", "node_modules"],
+  ignorePatterns: ["dist", "node_modules", "tmp"],
   rules: {
     "vitest/expect-expect": "error",
     "vitest/no-commented-out-tests": "error",

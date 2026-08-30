@@ -9,7 +9,6 @@
     /* Bundler mode */
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
     "moduleDetection": "force",
     "noEmit": true
   },
